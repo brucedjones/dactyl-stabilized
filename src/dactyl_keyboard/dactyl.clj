@@ -49,8 +49,8 @@
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2
 (def extra-height 1.0)                  ; original= 0.5
 
-(def wall-z-offset -8)                 ; length of the first downward-sloping part of the wall (negative)
-(def wall-xy-offset 5)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
+(def wall-z-offset -2)                 ; length of the first downward-sloping part of the wall (negative)
+(def wall-xy-offset 2)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 2)                  ; wall thickness parameter; originally 5
 
 ;; Settings for column-style == :fixed
@@ -451,6 +451,7 @@
        (translate [-30.5 -25 -2])))
 (defn thumb-2-place [shape]
   (->> shape
+       (translate [0 0 1.5])
        (rotate (deg2rad   10) [1 0 0])
        (rotate (deg2rad 15) [0 1 0])
        (rotate (deg2rad  15.5) [0 0 1])
@@ -458,6 +459,7 @@
        (translate [-52.75 -26.4 3])))
 (defn thumb-3-place [shape]
   (->> shape
+       (translate [0 0 -1.5])
        (rotate (deg2rad   10) [1 0 0])
        (rotate (deg2rad 15) [0 1 0])
        (rotate (deg2rad  15.5) [0 0 1])
@@ -636,8 +638,8 @@
 (defn bottom-hull [& p]
   (hull p (bottom 0.001 p)))
 
-(def left-wall-x-offset 8)
-(def left-wall-z-offset  3)
+(def left-wall-x-offset 2)
+(def left-wall-z-offset 2)
 
 (defn left-key-position [row direction]
   (map - (key-position 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0]) [left-wall-x-offset 0 left-wall-z-offset]) )
@@ -1065,7 +1067,7 @@
 
 ; Thumb cluster unit test
 (def unit-test-position [-55 -60 0])
-(def unit-test-cube   (cube 100 150 200))
+(def unit-test-cube   (cube 100 75 200))
 (def unit-test-space  (translate unit-test-position unit-test-cube))
 
 (def unit-test (intersection model-right unit-test-space))
