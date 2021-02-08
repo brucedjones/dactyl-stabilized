@@ -609,8 +609,8 @@
 (defn bottom-hull [& p]
   (hull p (bottom 0.001 p)))
 
-(def left-wall-x-offset 2)
-(def left-wall-z-offset 2)
+(def left-wall-x-offset 0)
+(def left-wall-z-offset 0.5)
 
 (defn left-key-position [row direction]
   (map - (key-position 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0]) [left-wall-x-offset 0 left-wall-z-offset]) )
@@ -887,7 +887,7 @@
   (union
     (screw-insert lastcol 0 bottom-radius top-radius height [-1 5 0])
     (screw-insert lastcol lastrow bottom-radius top-radius height [-2.5 14.5 0])
-    (screw-insert 0 lastrow bottom-radius top-radius height [4.5 -42 0])
+    (screw-insert 0 lastrow bottom-radius top-radius height [3 -42 0])
     (screw-insert 0 2 bottom-radius top-radius height [4 -7 0])
     (screw-insert 0 0 bottom-radius top-radius height [7 5 0])
   )
@@ -948,26 +948,39 @@
 ))))
 
 (def model-right (difference
-                   (union
-                     key-holes
-                     key-holes-inner
-                    ;  thumbcaps
-                     pinky-connectors
-                     extra-connectors
-                     connectors
-                     inner-connectors
-                     thumb-type
-                     thumb-connector-type
-                     (difference (union case-walls
-                                        screw-insert-outers
-                                      usb-holder-holder
-                                      trrs-holder)
-                               usb-holder-space
-                               usb-jack
-                               trrs-holder-hole
-                               reset-button-hole
-                               screw-insert-holes))
-                   (translate [0 0 -20] (cube 350 350 40))))
+  (union
+    key-holes
+    key-holes-inner
+    ;  thumbcaps
+    pinky-connectors
+    extra-connectors
+    connectors
+    inner-connectors
+    thumb-type
+    thumb-connector-type
+    (difference 
+      (union
+        case-walls
+        screw-insert-outers
+      )
+      reset-button-hole
+    )
+  )
+  ; (difference
+  ;   (union
+  ;     case-walls
+  ;     screw-insert-outers
+  ;     usb-holder-holder
+  ;     trrs-holder
+  ;   )
+  ;   usb-holder-space
+  ;   usb-jack
+  ;   trrs-holder-hole
+  ;   reset-button-hole
+  ;   screw-insert-holes
+  ; )
+  (translate [0 0 -20] (cube 350 350 40))
+))
 
 (spit "things/right.scad"
       (write-scad model-right))
