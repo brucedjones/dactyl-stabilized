@@ -49,8 +49,8 @@
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2
 (def extra-height 1.0)                  ; original= 0.5
 
-(def wall-z-offset -2)                 ; length of the first downward-sloping part of the wall (negative)
-(def wall-xy-offset 2)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
+(def wall-z-offset -0.5)                 ; length of the first downward-sloping part of the wall (negative)
+(def wall-xy-offset 0)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 2)                  ; wall thickness parameter; originally 5
 
 ;; Settings for column-style == :fixed
