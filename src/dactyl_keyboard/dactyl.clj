@@ -821,19 +821,6 @@
 (def usb-jack-back (translate (map + usb-jack-position [0 -16 -1.5]) (cube usb-jack-width 20 3)))
 (def usb-jack (union usb-jack-left-side usb-jack-right-side usb-jack-cube usb-jack-back))
 
-(def pro-micro-position (map + (key-position 0 1 (wall-locate3 -1 0)) [-6 2 -25]))
-(def pro-micro-space-size [4 10 12]) ; z has no wall;
-(def pro-micro-wall-thickness 2)
-(def pro-micro-holder-size [(+ pro-micro-wall-thickness (first pro-micro-space-size)) (+ pro-micro-wall-thickness (second pro-micro-space-size)) (last pro-micro-space-size)])
-(def pro-micro-space
-  (->> (cube (first pro-micro-space-size) (second pro-micro-space-size) (last pro-micro-space-size))
-       (translate [(- (first pro-micro-position) (/ pro-micro-wall-thickness 2)) (- (second pro-micro-position) (/ pro-micro-wall-thickness 2)) (last pro-micro-position)])))
-(def pro-micro-holder
-  (difference
-   (->> (cube (first pro-micro-holder-size) (second pro-micro-holder-size) (last pro-micro-holder-size))
-        (translate [(first pro-micro-position) (second pro-micro-position) (last pro-micro-position)]))
-   pro-micro-space))
-
 (def reset-button-radius 3.6)
 (def reset-button-position (map + usb-holder-position [19.5 0 3.5]))
 (def reset-button-hole
@@ -1003,7 +990,6 @@
                      thumb-connector-type
                      (difference (union case-walls
                                         screw-insert-outers
-                                        pro-micro-holder
                                       usb-holder-holder
                                       trrs-holder)
                                usb-holder-space
