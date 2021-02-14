@@ -92,7 +92,7 @@
 (def mount-width (+ keyswitch-width 3.2))
 (def mount-height (+ keyswitch-height 2.7))
 
-(def single-plate
+(def plate-1u
   (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 (+ plate-thickness 0.5))
                       (translate [0
                                   (+ (/ 1.5 2) (/ keyswitch-height 2))
@@ -264,7 +264,7 @@
                          (and (.contains [(+ innercol-offset 4)] column) extra-row (= ncols (+ innercol-offset 5)))
                          (and inner-column (not= row cornerrow)(= column 0))
                          (not= row lastrow))]
-           (->> single-plate
+           (->> plate-1u
                 ;                (rotate (/ π 2) [0 0 1])
                 (key-place column row)))))
 (def caps
@@ -297,7 +297,7 @@
   (if inner-column
     (apply union
            (for [row innerrows]
-             (->> single-plate
+             (->> plate-1u
                   ;               (rotate (/ π 2) [0 0 1])
                   (key-place 0 row))))))
 
@@ -465,14 +465,14 @@
        (translate thumborigin)
        (translate [-48.7 -45.25 -1.5])))
 
-(defn thumb-1x-layout [shape]
+(defn thumb-1u-layout [shape]
   (union
    (thumb-2-place shape)
    (thumb-3-place shape)
   )
 )
 
-(defn thumb-15x-layout [shape]
+(defn thumb-2u-layout [shape]
   (union
    (thumb-0-place shape)
    (thumb-1-place shape)
@@ -487,24 +487,127 @@
         ]
     (union top-plate (mirror [0 1 0] top-plate))))
 
+; Cherry MX 2u stabilizer cutout
+; Reference: https://cdn.sparkfun.com/datasheets/Components/Switches/MX%20Series.pdf
+; https://geekhack.org/index.php?action=dlattach;topic=93285.0;attach=185472;image
+(defn inches-to-mm [val] (* val 25.4))
+; Suitable for 2u, 2.25u, and 2.75u cherry stabilizers
+(defn small-stabilizer [A]
+  (let 
+    [
+      main-stab-cutout-height (inches-to-mm 0.484)
+      main-stab-cutout-x (/ A 2)
+      main-stab-cutout-y (- main-stab-cutout-height (inches-to-mm 0.26) (/ main-stab-cutout-height 2))
+      main-stab-cutout-width (inches-to-mm 0.262)
+      main-stab-cutout (->>
+        (cube main-stab-cutout-height main-stab-cutout-width web-thickness)
+        (translate [main-stab-cutout-y main-stab-cutout-x (- plate-thickness (/ web-thickness 2))])
+      )
+
+      secondary-stab-cutout-width (inches-to-mm 0.12)
+      secondary-stab-cutout-height (+ (inches-to-mm 0.26) (- (inches-to-mm 0.53) main-stab-cutout-height))
+      secondary-stab-cutout-x (/ A 2)
+      secondary-stab-cutout-y (/ (- 0 secondary-stab-cutout-height) 2)
+      secondary-stab-cutout (->>
+        (cube secondary-stab-cutout-height secondary-stab-cutout-width web-thickness)
+        (translate [secondary-stab-cutout-y secondary-stab-cutout-x (- plate-thickness (/ web-thickness 2))])
+      )
+
+      side-stab-cutout-width (+ A (* 0.8 2) main-stab-cutout-width)
+      side-stab-cutout-height 2.8
+      side-stab-cutout-x 0
+      side-stab-cutout-y 0.9
+      side-stab-cutout (->>
+        (cube side-stab-cutout-height side-stab-cutout-width web-thickness)
+        (translate [side-stab-cutout-y side-stab-cutout-x (- plate-thickness (/ web-thickness 2))])
+      )
+
+      connector-stab-cutout-width A
+      connector-stab-cutout-height 10.7
+      connector-stab-cutout-x 0
+      connector-stab-cutout-y (- (/ connector-stab-cutout-height 2 ) 5.97)
+      connector-stab-cutout (->>
+        (cube connector-stab-cutout-height connector-stab-cutout-width web-thickness)
+        (translate [connector-stab-cutout-y connector-stab-cutout-x (- plate-thickness (/ web-thickness 2))])
+      )
+
+      stabilizer-bar-clearance-width (+ A main-stab-cutout-width)
+      stabilizer-bar-clearance-height (/ (+ mount-width 3) 2)
+      stabilizer-bar-clearance-thickness retention-tab-hole-thickness
+      stabilizer-bar-clearance-y (/ (- stabilizer-bar-clearance-height) 2)
+      stabilizer-bar-clearance (->>
+        (cube stabilizer-bar-clearance-height stabilizer-bar-clearance-width web-thickness)
+        (translate [stabilizer-bar-clearance-y 0 (- (/ stabilizer-bar-clearance-thickness 2) 0.5)])
+      )
+
+      main-retention-tab-width (- A main-stab-cutout-width)
+      main-retention-tab-depth (/ (- mount-width keyswitch-height) 2)
+      main-retention-tab-y (-(/ (+ keyswitch-height main-retention-tab-depth) 2))
+      main-retention-tab-x 0
+      main-retention-tab-thickness retention-tab-hole-thickness
+      main-retention-tab (->>
+        (cube main-retention-tab-depth main-retention-tab-width (- plate-thickness main-retention-tab-thickness))
+        (translate [main-retention-tab-y main-retention-tab-x  (- web-thickness (/ main-retention-tab-thickness 2))])
+      )
+
+      retention-tab-y 5.53
+      retention-tab-x secondary-stab-cutout-x
+      retention-tab-width 3
+      retention-tab-depth 3.2
+      retention-tab (->>
+        (cube retention-tab-depth retention-tab-width retention-tab-hole-thickness)
+        (translate [retention-tab-y retention-tab-x  (- (/ retention-tab-hole-thickness 2) 0.5)])
+      )
+
+      cutout (union
+        ; Plate cutout
+        main-stab-cutout
+        secondary-stab-cutout
+        side-stab-cutout
+        connector-stab-cutout
+        (difference stabilizer-bar-clearance main-retention-tab)
+        retention-tab
+      )
+    ]
+    (union cutout (mirror [0 1 0] cutout))
+  )
+)
+(def stabilizer-cutout-2u (small-stabilizer (inches-to-mm 0.94)))
+
+
+(def plate-2u
+  (let [
+        plate-height (/ (- sa-double-length mount-height) 2)
+        plate-width mount-width
+        top-plate (->> (cube plate-width plate-height web-thickness)
+                       (translate [0 (/ (+ plate-height mount-height) 2)
+                                   (- plate-thickness (/ web-thickness 2))]))
+        side-plate-width (/ (- plate-width (+ keyswitch-width 3)) 2)
+        side-plate-height mount-height
+        side-plate (->> (cube side-plate-width side-plate-height web-thickness)
+                       (translate [(-(/ plate-width 2) (/ side-plate-width 2)) 0
+                                   (- plate-thickness (/ web-thickness 2))]))
+        ]
+    (union (rotate (/ π 2) [0 0 1] plate-1u) top-plate (mirror [0 1 0] top-plate side-plate (mirror [1 0 0] side-plate)))
+  )
+)
 
 (def thumbcaps
   (union
-   (thumb-1x-layout (sa-cap 1))
-   (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
+   (thumb-1u-layout (sa-cap 1))
+   (thumb-2u-layout (rotate (/ π 2) [0 0 1] (sa-cap 2)))))
 
 (def thumbcaps-fill
   (union
-   (thumb-1x-layout keyhole-fill)
-   (thumb-15x-layout (rotate (/ π 2) [0 0 1] keyhole-fill))))
+   (thumb-1u-layout keyhole-fill)
+   (thumb-2u-layout (rotate (/ π 2) [0 0 1] keyhole-fill))))
 
 (def thumb
   (union
-   (thumb-1x-layout (rotate (/ π 2) [0 0 0] single-plate))
-   (thumb-0-place (rotate (/ π 2) [0 0 1] single-plate))
-   (thumb-0-place larger-plate)
-   (thumb-1-place (rotate (/ π 2) [0 0 1] single-plate))
-   (thumb-1-place larger-plate)))
+    (thumb-1u-layout (rotate (/ π 2) [0 0 0] plate-1u))
+    (thumb-2u-layout plate-2u)
+  )
+)
 
 (def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  0.9) post-adj) 0] web-post))
 (def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  0.9) post-adj) 0] web-post))
@@ -534,6 +637,10 @@
     (thumb-2-place web-post-br)
     (thumb-2-place web-post-tr)
     (thumb-1-place thumb-post-tl)
+
+    (thumb-1-place thumb-post-tl)
+    (thumb-2-place web-post-tr)
+    (thumb-3-place web-post-tr)
     )
    (triangle-hulls    ; end two
     (thumb-3-place web-post-tr)
@@ -948,23 +1055,27 @@
 ))))
 
 (def model-right (difference
-  (union
-    key-holes
-    key-holes-inner
-    ;  thumbcaps
-    pinky-connectors
-    extra-connectors
-    connectors
-    inner-connectors
-    thumb-type
-    thumb-connector-type
-    (difference 
-      (union
-        case-walls
-        screw-insert-outers
+  (difference
+    (union
+      key-holes
+      key-holes-inner
+      ;  thumbcaps
+      pinky-connectors
+      extra-connectors
+      connectors
+      inner-connectors
+      thumb-type
+      thumb-connector-type
+      (difference 
+        (union
+          case-walls
+          screw-insert-outers
+        )
+        reset-button-hole
       )
-      reset-button-hole
     )
+    ; Stabilizer cutouts have to happen here as the required stabilizer bar clearance extends beyond the plate
+    (thumb-2u-layout stabilizer-cutout-2u)
   )
   ; (difference
   ;   (union
@@ -985,8 +1096,8 @@
 (spit "things/right.scad"
       (write-scad model-right))
 
-(spit "things/left.scad"
-      (write-scad (mirror [-1 0 0] model-right)))
+; (spit "things/left.scad"
+;       (write-scad (mirror [-1 0 0] model-right)))
 
 ; USB-C/TRRS unit test
 ; (def unit-test-position [-78 60 0])
@@ -1073,18 +1184,41 @@
         )
         (translate [0 0 -10] screw-insert-screw-holes))))
 )
-(spit "things/right-plate.scad"
-      (write-scad plate-right))
+; (spit "things/complete.scad"
+;       (write-scad (union model-right plate-right)))
 
-(spit "things/left-plate.scad"
-      (write-scad (mirror [-1 0 0] plate-right)))
 
-(spit "things/right-plate-laser.scad"
-      (write-scad
-       (cut
-        (translate [0 0 -0.1]
-                   (difference (union case-walls
-                                      screw-insert-outers)
-                               (translate [0 0 -10] screw-insert-screw-holes))))))
+; (spit "things/right-plate.scad"
+;       (write-scad plate-right))
+
+; (spit "things/left-plate.scad"
+;       (write-scad (mirror [-1 0 0] plate-right)))
+
+; (spit "things/right-plate-laser.scad"
+;       (write-scad
+;        (cut
+;         (translate [0 0 -0.1]
+;                    (difference (union case-walls
+;                                       screw-insert-outers)
+;                                (translate [0 0 -10] screw-insert-screw-holes))))))
+
+
+(def test-plate (let [plate-height sa-double-length]
+  (->> (cube mount-width plate-height web-thickness)
+                       (translate [0 0
+                                   (- plate-thickness (/ web-thickness 2))]))))
+(def stabilizer-unit-test
+  (difference 
+    (union
+      plate-2u
+      (translate [mount-width 0 0] test-plate)
+      (translate [(- mount-width) 0 0] test-plate)
+    )
+    stabilizer-cutout-2u
+  )
+)
+
+(spit "things/stabilizer-unit-test.scad"
+      (write-scad stabilizer-unit-test))
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
