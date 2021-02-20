@@ -1,3 +1,6 @@
+; TODO nicenano holder
+; TODO countersink screw holes
+
 (ns dactyl-keyboard.dactyl
     (:refer-clojure :exclude [use import])
     (:require [clojure.core.matrix :refer [array matrix mmul]]
@@ -860,9 +863,7 @@
     (for [y (range 0 (- lastrow innercol-offset))] (key-wall-brace 0 y -1 0 web-post-tl 0 y        -1 0 web-post-bl))
     (for [y (range 1 (- lastrow innercol-offset))] (key-wall-brace 0 y -1 0 web-post-tl 0 (dec y)  -1 0 web-post-bl))
     (key-wall-brace 0 0 0 1 web-post-tl 0 0 -1 0 web-post-tl)
-    ; TODO holes for buttons 2x per half
-    ; TODO nicenano holder
-   ; front wall
+    ; front wall
     (key-wall-brace (+ innercol-offset 3) lastrow  0 -1 web-post-bl (+ innercol-offset 3) lastrow   0 -1 web-post-br)
     (key-wall-brace (+ innercol-offset 3) lastrow  0 -1 web-post-br (+ innercol-offset 4) extra-cornerrow 0 -1 web-post-bl)
     (for [x (range (+ innercol-offset 4) ncols)] (key-wall-brace x extra-cornerrow 0 -1 web-post-bl x       extra-cornerrow 0 -1 web-post-br))
@@ -917,15 +918,19 @@
 (def usb-jack-back (translate (map + usb-jack-position [0 -16 -1.5]) (cube usb-jack-width 20 3)))
 (def usb-jack (union usb-jack-left-side usb-jack-right-side usb-jack-cube usb-jack-back))
 
-(def reset-button-radius 3.6)
-(def reset-button-position (map + usb-holder-position [19.5 0 3.5]))
-(def reset-button-hole
+(def control-switch-radius 6.1)
+(defn make-control-switch-hole [position]
    (->>
-    (->> (binding [*fn* 30] (cylinder reset-button-radius 20))) ; 5mm trrs jack
+    (->> (binding [*fn* 30] (cylinder control-switch-radius 20)))
     (rotate (deg2rad  90) [1 0 0])
-    (translate reset-button-position)
+    (translate position)
   )
 )
+(def control-switches (union
+  (make-control-switch-hole [(first (key-position 2 0 [1.75 0 0])) (second (key-position 2 0 [0 0 0])) 11])
+  (make-control-switch-hole [(first (key-position 3 0 [1.75 0 0])) (second (key-position 3 0 [0 0 0])) 11])
+))
+
 (def trrs-holder-size [6.2 10 2]) ; trrs jack PJ-320A
 (def trrs-holder-hole-size [6.2 10 6]) ; trrs jack PJ-320A
 (def trrs-holder-position (map + usb-holder-position [-17.25 0 0]))
@@ -1056,12 +1061,12 @@
       inner-connectors
       thumb-type
       thumb-connector-type
-      (difference 
+      (difference
         (union
           case-walls
           screw-insert-outers
         )
-        reset-button-hole
+        control-switches
         screw-insert-holes
       )
     )
@@ -1078,7 +1083,7 @@
   ;   usb-holder-space
   ;   usb-jack
   ;   trrs-holder-hole
-  ;   reset-button-hole
+  ;   control-button-hole
   ;   screw-insert-holes
   ; )
   (translate [0 0 -20] (cube 350 350 40))
