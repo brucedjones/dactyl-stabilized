@@ -870,20 +870,6 @@
     (for [x (range (+ innercol-offset 5) ncols)] (key-wall-brace x extra-cornerrow 0 -1 web-post-bl (dec x) extra-cornerrow 0 -1 web-post-br))
    ))
 
-; Offsets for the controller/trrs holder cutout
-(def holder-offset
-  (case nrows
-    4 -3.5
-    5 0
-    6 (if inner-column
-          3.2
-          2.2)))
-
-(def notch-offset
-  (case nrows
-    4 3.15
-    5 0
-    6 -5.07))
 
 (def usb-holder-ref (key-position 0 0 (map - (wall-locate2  0.2  -1.13) [0 (/ mount-height 2) 0])))
 
@@ -900,7 +886,7 @@
 
 (def usb-jack-left-side
    (->>
-    (->> (binding [*fn* 30] (cylinder usb-jack-radius 20))) ; 5mm trrs jack
+    (->> (binding [*fn* 30] (cylinder usb-jack-radius 20)))
     (rotate (deg2rad  90) [1 0 0])
     (translate (map +  usb-jack-position [(* -1 (- (/ usb-jack-width 2) usb-jack-radius)) 0 0]))
   )
@@ -908,7 +894,7 @@
 
 (def usb-jack-right-side
    (->>
-    (->> (binding [*fn* 30] (cylinder usb-jack-radius 20))) ; 5mm trrs jack
+    (->> (binding [*fn* 30] (cylinder usb-jack-radius 20)))
     (rotate (deg2rad  90) [1 0 0])
     (translate (map +  usb-jack-position [(- (/ usb-jack-width 2) usb-jack-radius) 0 0]))
   )
@@ -930,40 +916,6 @@
   (make-control-switch-hole [(first (key-position 2 0 [1.75 0 0])) (second (key-position 2 0 [0 0 0])) 11])
   (make-control-switch-hole [(first (key-position 3 0 [1.75 0 0])) (second (key-position 3 0 [0 0 0])) 11])
 ))
-
-(def trrs-holder-size [6.2 10 2]) ; trrs jack PJ-320A
-(def trrs-holder-hole-size [6.2 10 6]) ; trrs jack PJ-320A
-(def trrs-holder-position (map + usb-holder-position [-17.25 0 0]))
-(def trrs-holder-thickness 2)
-(def trrs-holder-thickness-2x (* 2 trrs-holder-thickness))
-(def trrs-face-hole
-  (->>
-    (->> (binding [*fn* 30] (cylinder 3.175 0.5))) ; 5mm trrs jack
-    (rotate (deg2rad  90) [1 0 0])
-    (translate [(first trrs-holder-position) (+ (second trrs-holder-position) (/ (+ (second trrs-holder-size) trrs-holder-thickness) 2)) (+ 3 (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2))])
-  )
-
-)
-(def trrs-main-hole
-  (->>
-    (->> (binding [*fn* 30] (cylinder 2.55 20))) ; 5mm trrs jack
-    (rotate (deg2rad  90) [1 0 0])
-    (translate [(first trrs-holder-position) (+ (second trrs-holder-position) (/ (+ (second trrs-holder-size) trrs-holder-thickness) 2)) (+ 3 (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2))])
-  )
-
-)
-(def trrs-holder
-  (union
-   (->> (cube (+ (first trrs-holder-size) trrs-holder-thickness-2x) (+ trrs-holder-thickness (second trrs-holder-size)) (+ (last trrs-holder-size) trrs-holder-thickness))
-        (translate [(first trrs-holder-position) (second trrs-holder-position) (/ (+ (last trrs-holder-size) trrs-holder-thickness) 2)]))))
-(def trrs-holder-hole
-  (union
-
-  ; circle trrs hole
-   trrs-main-hole
-   trrs-face-hole
-  ; rectangular trrs holder
-   (->> (apply cube trrs-holder-hole-size) (translate [(first trrs-holder-position) (+ (/ trrs-holder-thickness -2) (second trrs-holder-position)) (+ (/ (last trrs-holder-hole-size) 2) trrs-holder-thickness)]))))
 
 ; Screw insert definition & position
 (defn screw-insert-shape [bottom-radius top-radius height]
@@ -1078,11 +1030,9 @@
   ;     case-walls
   ;     screw-insert-outers
   ;     usb-holder-holder
-  ;     trrs-holder
   ;   )
   ;   usb-holder-space
   ;   usb-jack
-  ;   trrs-holder-hole
   ;   control-button-hole
   ;   screw-insert-holes
   ; )
