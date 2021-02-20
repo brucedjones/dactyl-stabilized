@@ -860,7 +860,6 @@
     (for [y (range 0 (- lastrow innercol-offset))] (key-wall-brace 0 y -1 0 web-post-tl 0 y        -1 0 web-post-bl))
     (for [y (range 1 (- lastrow innercol-offset))] (key-wall-brace 0 y -1 0 web-post-tl 0 (dec y)  -1 0 web-post-bl))
     (key-wall-brace 0 0 0 1 web-post-tl 0 0 -1 0 web-post-tl)
-    ; TODO holes in the damn screw inserts
     ; TODO holes for buttons 2x per half
     ; TODO nicenano holder
    ; front wall
@@ -983,8 +982,8 @@
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (union
-    (screw-insert lastcol 0 bottom-radius top-radius height [-1 5 0])
-    (screw-insert lastcol lastrow bottom-radius top-radius height [-2.5 14.5 0])
+    (screw-insert lastcol 0 bottom-radius top-radius height [4.5 5 0])
+    (screw-insert lastcol lastrow bottom-radius top-radius height [7.5 14.5 0])
     (screw-insert 0 lastrow bottom-radius top-radius height [3 -42 0])
     (screw-insert 0 2 bottom-radius top-radius height [4 -7 0])
     (screw-insert 0 0 bottom-radius top-radius height [7 5 0])
@@ -1063,6 +1062,7 @@
           screw-insert-outers
         )
         reset-button-hole
+        screw-insert-holes
       )
     )
     ; Stabilizer cutouts have to happen here as the required stabilizer bar clearance extends beyond the plate
