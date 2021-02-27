@@ -1,5 +1,5 @@
-; TODO nicenano holder
 ; TODO countersink screw holes
+; TODO Palm rest outline
 
 (ns dactyl-keyboard.dactyl
     (:refer-clojure :exclude [use import])
@@ -9,8 +9,16 @@
               [unicode-math.core :refer :all]))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;
+;; Utility Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
+
+(defn mcube [dims]
+  (cube (nth dims 0) (nth dims 1) (nth dims 2) :center false)
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Shape parameters ;;
@@ -319,10 +327,6 @@
 (def web-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
 (def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 (def web-post-br (translate [(- (/ mount-width 2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
-; (def web-post-tr (translate [(- (/ mount-width 1.95) post-adj) (- (/ mount-height 1.95) post-adj) 0] web-post))
-; (def web-post-tl (translate [(+ (/ mount-width -1.95) post-adj) (- (/ mount-height 1.95) post-adj) 0] web-post))
-; (def web-post-bl (translate [(+ (/ mount-width -1.95) post-adj) (+ (/ mount-height -1.95) post-adj) 0] web-post))
-; (def web-post-br (translate [(- (/ mount-width 1.95) post-adj) (+ (/ mount-height -1.95) post-adj) 0] web-post))
 
 ; wide posts for 1.5u keys in the main cluster
 (if pinky-15u
@@ -429,7 +433,7 @@
                (key-place column row web-post-br)))))))
 
 ;;;;;;;;;;;;;;;;;;;
-;; Default Thumb ;;
+;; Thumb Cluster ;;
 ;;;;;;;;;;;;;;;;;;;
 
 (def thumborigin
@@ -870,95 +874,6 @@
     (for [x (range (+ innercol-offset 5) ncols)] (key-wall-brace x extra-cornerrow 0 -1 web-post-bl (dec x) extra-cornerrow 0 -1 web-post-br))
    ))
 
-
-(def usb-holder-ref (key-position 0 0 (map - (wall-locate2  0.2  -1.13) [0 (/ mount-height 2) 0])))
-
-(def usb-holder-position (map + [22.75 19.8 0] [(first usb-holder-ref) (second usb-holder-ref) 2]))
-(def usb-jack-width 9.525)
-(def usb-jack-height 4.175)
-(def usb-jack-radius (/ usb-jack-height 2))
-(def usb-board-thickness 1.5875)
-(def usb-cube-thickness (+ usb-board-thickness usb-jack-radius))
-(def usb-holder-cube   (cube 22.3 12 usb-cube-thickness))
-(def usb-holder-space  (translate (map + usb-holder-position [0 (* -1 wall-thickness) (/ usb-cube-thickness 2)]) usb-holder-cube))
-(def usb-holder-holder (translate usb-holder-position (cube 26.3 12 4)))
-(def usb-jack-position (map + usb-holder-position [-0.25 10 (+ usb-board-thickness usb-jack-radius)]))
-
-(def usb-jack-left-side
-   (->>
-    (->> (binding [*fn* 30] (cylinder usb-jack-radius 20)))
-    (rotate (deg2rad  90) [1 0 0])
-    (translate (map +  usb-jack-position [(* -1 (- (/ usb-jack-width 2) usb-jack-radius)) 0 0]))
-  )
-)
-
-(def usb-jack-right-side
-   (->>
-    (->> (binding [*fn* 30] (cylinder usb-jack-radius 20)))
-    (rotate (deg2rad  90) [1 0 0])
-    (translate (map +  usb-jack-position [(- (/ usb-jack-width 2) usb-jack-radius) 0 0]))
-  )
-)
-
-(def usb-jack-cube (translate usb-jack-position (cube (- usb-jack-width usb-jack-height) 20 usb-jack-height)))
-(def usb-jack-back (translate (map + usb-jack-position [0 -16 -1.5]) (cube usb-jack-width 20 3)))
-(def usb-jack (union usb-jack-left-side usb-jack-right-side usb-jack-cube usb-jack-back))
-
-(def control-switch-radius 6.1)
-(defn make-control-switch-hole [position]
-   (->>
-    (->> (binding [*fn* 30] (cylinder control-switch-radius 20)))
-    (rotate (deg2rad  90) [1 0 0])
-    (translate position)
-  )
-)
-(def control-switches (union
-  (make-control-switch-hole [(first (key-position 2 0 [1.75 0 0])) (second (key-position 2 0 [0 0 0])) 11])
-  (make-control-switch-hole [(first (key-position 3 0 [1.75 0 0])) (second (key-position 3 0 [0 0 0])) 11])
-))
-
-; Screw insert definition & position
-(defn screw-insert-shape [bottom-radius top-radius height]
-  (union
-   (->> (binding [*fn* 30]
-                 (cylinder [bottom-radius top-radius] height)))))
-
-(defn screw-insert [column row bottom-radius top-radius height offset]
-  (let [shift-right   (= column lastcol)
-        shift-left    (= column 0)
-        shift-up      (and (not (or shift-right shift-left)) (= row 0))
-        shift-down    (and (not (or shift-right shift-left)) (>= row lastrow))
-        position      (if shift-up     (key-position column row (map + (wall-locate2  0  1) [0 (/ mount-height 2) 0]))
-                        (if shift-down  (key-position column row (map - (wall-locate2  0 -2.5) [0 (/ mount-height 2) 0]))
-                          (if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0))
-                            (key-position column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))]
-    (->> (screw-insert-shape bottom-radius top-radius height)
-         (translate (map + offset [(first position) (second position) (/ height 2)])))))
-
-    
-
-(defn screw-insert-all-shapes [bottom-radius top-radius height]
-  (union
-    (screw-insert lastcol 0 bottom-radius top-radius height [4.5 5 0])
-    (screw-insert lastcol lastrow bottom-radius top-radius height [7.5 14.5 0])
-    (screw-insert 0 lastrow bottom-radius top-radius height [3 -42 0])
-    (screw-insert 0 2 bottom-radius top-radius height [4 -7 0])
-    (screw-insert 0 0 bottom-radius top-radius height [7 5 0])
-  )
-)
-
-; Hole Depth Y: 4.4
-(def screw-insert-height 6)
-
-; Hole Diameter C: 4.1-4.4
-(def screw-insert-bottom-radius (/ 4.0 2))
-(def screw-insert-top-radius (/ 3.9 2))
-(def screw-insert-holes  (screw-insert-all-shapes screw-insert-bottom-radius screw-insert-top-radius screw-insert-height))
-
-; Wall Thickness W:\t1.65
-(def screw-insert-outers (screw-insert-all-shapes (+ screw-insert-bottom-radius 1.65) (+ screw-insert-top-radius 1.65) (+ screw-insert-height 1)))
-(def screw-insert-screw-holes  (screw-insert-all-shapes 1.7 1.7 350))
-
 ; Connectors between outer column and right wall when 1.5u keys are used
 (def pinky-connectors
   (if pinky-15u
@@ -1001,6 +916,202 @@
                (key-place lastcol (inc row) web-post-tr))))
 ))))
 
+
+(def usb-holder-ref (key-position 0 0 (map - (wall-locate2  0.2  -1.13) [0 (/ mount-height 2) 0])))
+
+(def usb-holder-position (map + [22.75 19.8 0] [(first usb-holder-ref) (second usb-holder-ref) 2]))
+(def usb-jack-width 9.525)
+(def usb-jack-height 4.175)
+(def usb-jack-radius (/ usb-jack-height 2))
+(def usb-board-thickness 1.5875)
+(def usb-cube-thickness (+ usb-board-thickness usb-jack-radius))
+(def usb-holder-cube   (cube 22.3 12 usb-cube-thickness))
+(def usb-holder-space  (translate (map + usb-holder-position [0 (* -1 wall-thickness) (/ usb-cube-thickness 2)]) usb-holder-cube))
+(def usb-holder-holder (translate usb-holder-position (cube 26.3 12 4)))
+(def usb-jack-position (map + usb-holder-position [-0.25 10 (+ usb-board-thickness usb-jack-radius)]))
+
+(def usb-jack-left-side
+   (->>
+    (->> (binding [*fn* 30] (cylinder usb-jack-radius 20)))
+    (rotate (deg2rad  90) [1 0 0])
+    (translate (map +  usb-jack-position [(* -1 (- (/ usb-jack-width 2) usb-jack-radius)) 0 0]))
+  )
+)
+
+(def usb-jack-right-side
+   (->>
+    (->> (binding [*fn* 30] (cylinder usb-jack-radius 20)))
+    (rotate (deg2rad  90) [1 0 0])
+    (translate (map +  usb-jack-position [(- (/ usb-jack-width 2) usb-jack-radius) 0 0]))
+  )
+)
+
+(def usb-jack-cube (translate usb-jack-position (cube (- usb-jack-width usb-jack-height) 20 usb-jack-height)))
+(def usb-jack-back (translate (map + usb-jack-position [0 -16 -1.5]) (cube usb-jack-width 20 3)))
+(def usb-jack (union usb-jack-left-side usb-jack-right-side usb-jack-cube usb-jack-back))
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; Control Switches ;;
+;;;;;;;;;;;;;;;;;;;;;;
+(def control-switch-radius 6.1)
+(defn make-control-switch-hole [position]
+   (->>
+    (->> (binding [*fn* 30] (cylinder control-switch-radius 20)))
+    (rotate (deg2rad  90) [1 0 0])
+    (translate position)
+  )
+)
+(def control-switches (union
+  (make-control-switch-hole [(first (key-position 2 0 [1.75 0 0])) (second (key-position 2 0 [0 0 0])) 11])
+  (make-control-switch-hole [(first (key-position 3 0 [1.75 0 0])) (second (key-position 3 0 [0 0 0])) 11])
+))
+
+;;;;;;;;;;;;;;;;;;;;
+;; Screw Inserts  ;;
+;;;;;;;;;;;;;;;;;;;;
+(defn screw-insert-shape [bottom-radius top-radius height]
+  (union
+   (->> (binding [*fn* 30]
+                 (cylinder [bottom-radius top-radius] height)))))
+
+(defn screw-insert [column row bottom-radius top-radius height offset]
+  (let [shift-right   (= column lastcol)
+        shift-left    (= column 0)
+        shift-up      (and (not (or shift-right shift-left)) (= row 0))
+        shift-down    (and (not (or shift-right shift-left)) (>= row lastrow))
+        position      (if shift-up     (key-position column row (map + (wall-locate2  0  1) [0 (/ mount-height 2) 0]))
+                        (if shift-down  (key-position column row (map - (wall-locate2  0 -2.5) [0 (/ mount-height 2) 0]))
+                          (if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0))
+                            (key-position column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))]
+    (->> (screw-insert-shape bottom-radius top-radius height)
+         (translate (map + offset [(first position) (second position) (/ height 2)])))))
+
+    
+
+(defn screw-insert-all-shapes [bottom-radius top-radius height]
+  (union
+    (screw-insert lastcol 0 bottom-radius top-radius height [4.5 5 0])
+    (screw-insert lastcol lastrow bottom-radius top-radius height [7.5 14.5 0])
+    (screw-insert 0 lastrow bottom-radius top-radius height [3 -42 0])
+    (screw-insert 0 2 bottom-radius top-radius height [4 -7 0])
+    (screw-insert 0 0 bottom-radius top-radius height [7 5 0])
+  )
+)
+
+; Hole Depth Y: 4.4
+(def screw-insert-height 6)
+
+; Hole Diameter C: 4.1-4.4
+(def screw-insert-bottom-radius (/ 4.0 2))
+(def screw-insert-top-radius (/ 3.9 2))
+(def screw-insert-holes  (screw-insert-all-shapes screw-insert-bottom-radius screw-insert-top-radius screw-insert-height))
+
+; Wall Thickness W:\t1.65
+(def screw-insert-outers (screw-insert-all-shapes (+ screw-insert-bottom-radius 1.65) (+ screw-insert-top-radius 1.65) (+ screw-insert-height 1)))
+(def screw-insert-screw-holes  (screw-insert-all-shapes 1.7 1.7 350))
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Nicenano Holder ;;
+;;;;;;;;;;;;;;;;;;;;;
+(defn make-nicenano-holder [position orientation]
+  ; position is the position of the middle of the USB-C opening in XY, with the holder directly on the bottom plate
+  ; orientation is degrees rotated about the z axis
+  (let
+    [
+      nicenano-dims [18.4 33.7 2]
+      pin-clearance [4 (second nicenano-dims) 2.5]
+      support-extent 25
+      retainer-extent 1
+      wall-thickness 2
+      wall-height 2.1 ; height above nicenano
+      bounding-box (map + nicenano-dims [(* wall-thickness 2) wall-thickness (+ (nth pin-clearance 2) wall-height)])
+      transform (fn [shape] (->> shape
+        (translate (map - (map / bounding-box [2 2 2])))
+        (rotate (deg2rad  orientation) [0 0 1])
+        (translate (map / [0 (- (nth bounding-box 1)) (nth bounding-box 2)] [2 2 2]))
+        (translate position)
+      ))
+    ]
+    [
+      ; HOLDER
+      (transform (union
+        (difference
+          (mcube bounding-box)
+          (translate
+            [wall-thickness 0 0]
+            (mcube (map + nicenano-dims [0 0 (nth bounding-box 2)]))
+          )
+        )
+        (translate
+          [(+ wall-thickness (nth pin-clearance 0)) 0 0]
+          (mcube [(- (nth nicenano-dims 0) (* 2 (nth pin-clearance 0))) support-extent (nth pin-clearance 2)])
+        )
+        (translate
+          [(+ wall-thickness (nth pin-clearance 0)) (- (nth nicenano-dims 1) retainer-extent) (+ (nth pin-clearance 2) (nth nicenano-dims 2))]
+          (mcube [(- (nth nicenano-dims 0) (* 2 (nth pin-clearance 0))) retainer-extent retainer-extent])
+        )
+      ))
+      ; USB CUTOUT
+      (let
+        [
+          jack-width 9.525
+          jack-height 3.5
+          jack-radius (/ jack-height 2)
+          jack-wall-thickness 1
+          clearance-buffer 2.75
+          clearance-width (+ jack-width clearance-buffer clearance-buffer)
+          clearance-height (+ jack-height clearance-buffer clearance-buffer)
+          clearance-radius (/ clearance-height 2)
+        ]
+        [
+          (transform (union
+            (mirror
+              [0 -1 0]
+              (translate
+                [(/ (- (nth bounding-box 0) jack-width) 2) (- 0.1) (nth pin-clearance 2)]
+                (union
+                  (translate [jack-radius wall-thickness jack-radius]
+                    (rotate (deg2rad  90) [1 0 0]
+                      (binding [*fn* 30] (cylinder jack-radius (* 2 wall-thickness)))
+                    )
+                  )
+                  (translate [(- jack-width jack-radius) wall-thickness jack-radius]
+                    (rotate (deg2rad  90) [1 0 0]
+                      (binding [*fn* 30] (cylinder jack-radius (* 2 wall-thickness)))
+                    )
+                  )
+                  (translate [jack-radius 0 0]
+                    (mcube [(- jack-width jack-radius jack-radius) (* 2 wall-thickness) jack-height])
+                  )
+                )
+              )
+            )
+            (mirror [0 -1 0]
+              (translate
+                [(/ (- (nth bounding-box 0) clearance-width) 2) jack-wall-thickness (+ (nth pin-clearance 2) (- (/ jack-height 2) (/ clearance-height 2)))]
+                (mcube [clearance-width (* 2 wall-thickness) clearance-height])
+              )
+            )
+          ))
+          (transform (translate [(/ (- (nth bounding-box 0) jack-width) 2) 0 (+ (nth pin-clearance 2) jack-height)]
+            (mcube [jack-width retainer-extent retainer-extent])
+          ))
+        ]
+      )
+    ]
+  )
+)
+(def nicenano-reference-key-position (key-position 1 0 [0 0 0]))
+(def nice-nano-reference-position [
+  (first nicenano-reference-key-position)
+  (+ (second nicenano-reference-key-position) (+ (/ mount-height 2) post-adj))
+  0
+])
+(def nicenano-holder (make-nicenano-holder (map + nice-nano-reference-position [(- 2) -3 0]) 180))
+
+;;;;;;;;;;;;;;;;;;;
+;; Complete Case ;;
+;;;;;;;;;;;;;;;;;;;
 (def model-right (difference
   (difference
     (union
@@ -1017,25 +1128,17 @@
         (union
           case-walls
           screw-insert-outers
+          (nth (nth nicenano-holder 1) 1)
         )
         control-switches
         screw-insert-holes
+        (nth (nth nicenano-holder 1) 0)
+        
       )
     )
     ; Stabilizer cutouts have to happen here as the required stabilizer bar clearance extends beyond the plate
     (thumb-2u-layout stabilizer-cutout-2u)
   )
-  ; (difference
-  ;   (union
-  ;     case-walls
-  ;     screw-insert-outers
-  ;     usb-holder-holder
-  ;   )
-  ;   usb-holder-space
-  ;   usb-jack
-  ;   control-button-hole
-  ;   screw-insert-holes
-  ; )
   (translate [0 0 -20] (cube 350 350 40))
 ))
 
@@ -1045,28 +1148,9 @@
 ; (spit "things/left.scad"
 ;       (write-scad (mirror [-1 0 0] model-right)))
 
-; USB-C/TRRS unit test
-; (def unit-test-position [-78 60 0])
-; (def unit-test-cube   (cube 100 40 24))
-; (def unit-test-space  (translate unit-test-position unit-test-cube))
-
-; (def unit-test (intersection model-right unit-test-space))
-
-; Thumb cluster unit test
-(def unit-test-position [-55 -60 0])
-(def unit-test-cube   (cube 100 150 200))
-(def unit-test-space  (translate unit-test-position unit-test-cube))
-
-(def unit-test (intersection model-right unit-test-space))
-
-(spit "things/unit-test.scad" 
-      (write-scad unit-test))
-
-(spit "things/right-test.scad"
-      (write-scad (union model-right
-                         thumbcaps-type
-                         caps)))
-
+;;;;;;;;;;;;;;;
+;; Palm Rest ;;
+;;;;;;;;;;;;;;;
 ; these positions should really be derived from the model
 (def outside-case-contact [61.5737 -51.3762])
 (def thumb-case-contact [-51.5458 -103.431])
@@ -1076,10 +1160,10 @@
 (def lower-right-two (map + lower-right-one [(* 25.4 (* -1 (√ 0.1))) (* 25.4 (* -2 (√ 0.1)))]))
 (def lower-left-one (map + thumb-case-contact [(√ (/ (* rest-length rest-length) 2)) (* -1 (√ (/ (* rest-length rest-length) 2)))] [7.5 10]))
 (def lower-left-two (map + lower-left-one [(* 25.4 (* (√ 0.5) (Math/cos (- (/ π 4) (Math/atan 0.5))))) (* -25.4 (* (√ 0.5) (Math/sin (- (/ π 4) (Math/atan 0.5)))))]))
-(def wrist-screw-one (map + outside-case-contact [-15 -25.4]))
-(def wrist-screw-two (map + outside-case-contact [-83 -53]))
-(def wrist-screw-three (map + outside-case-contact [-34.1 -67.15]))
-(def wrist-rest
+(def palm-screw-one (map + outside-case-contact [-15 -25.4]))
+(def palm-screw-two (map + outside-case-contact [-83 -53]))
+(def palm-screw-three (map + outside-case-contact [-34.1 -67.15]))
+(def palm-rest
   (difference
     (extrude-linear
       {:height 2.6 :center false}
@@ -1095,47 +1179,52 @@
     )
     (->>
       (->> (binding [*fn* 30] (cylinder 1.7 20)))
-      (translate wrist-screw-one)
+      (translate palm-screw-one)
     )
     (->>
       (->> (binding [*fn* 30] (cylinder 1.7 20)))
-      (translate wrist-screw-two)
+      (translate palm-screw-two)
     )
     (->>
       (->> (binding [*fn* 30] (cylinder 1.7 20)))
-      (translate wrist-screw-three)
+      (translate palm-screw-three)
     )
   )
 )
 
 (def plate-right
-  (extrude-linear
-    {:height 2.6 :center false}
-    (project
-      (difference
-        (union
-          key-holes
-          key-holes-inner
-          pinky-connectors
-          extra-connectors
-          connectors
-          inner-connectors
-          thumb-type
-          thumb-connector-type
-          case-walls
-          thumbcaps-fill-type
-          caps-fill
-          screw-insert-outers
-          wrist-rest
-        )
-        (translate [0 0 -10] screw-insert-screw-holes))))
+  (union
+    (extrude-linear
+      {:height 2.6 :center false}
+      (project
+        (difference
+          (union
+            key-holes
+            key-holes-inner
+            pinky-connectors
+            extra-connectors
+            connectors
+            inner-connectors
+            thumb-type
+            thumb-connector-type
+            case-walls
+            thumbcaps-fill-type
+            caps-fill
+            screw-insert-outers
+            palm-rest
+          )
+          (translate [0 0 -10] screw-insert-screw-holes)))
+    )
+    (translate [0 0 2.6] (nth nicenano-holder 0))
+  )
 )
-; (spit "things/complete.scad"
-;       (write-scad (union model-right plate-right)))
+
+(spit "things/complete.scad"
+      (write-scad (union model-right plate-right)))
 
 
-; (spit "things/right-plate.scad"
-;       (write-scad plate-right))
+(spit "things/right-plate.scad"
+      (write-scad plate-right))
 
 ; (spit "things/left-plate.scad"
 ;       (write-scad (mirror [-1 0 0] plate-right)))
@@ -1148,23 +1237,73 @@
 ;                                       screw-insert-outers)
 ;                                (translate [0 0 -10] screw-insert-screw-holes))))))
 
+;;;;;;;;;;;;;;;;
+;; Unit Tests ;;
+;;;;;;;;;;;;;;;;
 
-(def test-plate (let [plate-height sa-double-length]
-  (->> (cube mount-width plate-height web-thickness)
-                       (translate [0 0
-                                   (- plate-thickness (/ web-thickness 2))]))))
-(def stabilizer-unit-test
-  (difference 
-    (union
-      plate-2u
-      (translate [mount-width 0 0] test-plate)
-      (translate [(- mount-width) 0 0] test-plate)
-    )
-    stabilizer-cutout-2u
-  )
-)
+; Cherry stabilizer
+; (def test-plate (let [plate-height sa-double-length]
+;   (->> (cube mount-width plate-height web-thickness)
+;                        (translate [0 0
+;                                    (- plate-thickness (/ web-thickness 2))]))))
+; (def stabilizer-unit-test
+;   (difference 
+;     (union
+;       plate-2u
+;       (translate [mount-width 0 0] test-plate)
+;       (translate [(- mount-width) 0 0] test-plate)
+;     )
+;     stabilizer-cutout-2u
+;   )
+; )
+; (spit "things/stabilizer-unit-test.scad"
+;       (write-scad stabilizer-unit-test))
 
-(spit "things/stabilizer-unit-test.scad"
-      (write-scad stabilizer-unit-test))
+; Nicenano holder unit test
+; (def nicenano-holder-test
+;   (let [
+;     holder (make-nicenano-holder [0 0 0] 0)
+;   ]
+;     (union
+;       ;dummy floor
+;       (translate
+;         [0  (- 2) (- 1)]
+;         (mcube [22.4 37.7 1])
+;       )
+;       (first holder)
+;       (second (second holder))
+;       (difference
+;         ; dummy front wall
+;         (translate
+;           [0 (- 2) 0]
+;           (mcube [22.4 2 10])
+;         )
+;         (first (second holder))
+;       )
+;     )
+;   )
+; )
+; (spit "things/nicenano-holder.scad"
+;   (write-scad nicenano-holder-test)
+; )
+
+; Nicenano holder integration test
+(def unit-test-position [-78 60 0])
+(def unit-test-cube   (cube 150 120 40))
+(def unit-test-space  (translate unit-test-position unit-test-cube))
+
+(spit "things/nicenano-integration-test-plate.scad" 
+      (write-scad (intersection (translate [0 0 (- 2.6)] plate-right) unit-test-space)))
+(spit "things/nicenano-integration-test-wall.scad" 
+      (write-scad (intersection model-right unit-test-space)))
+
+
+; Thumb cluster unit test
+; (def unit-test-position [-55 -60 0])
+; (def unit-test-cube   (cube 100 150 200))
+; (def unit-test-space  (translate unit-test-position unit-test-cube))
+; (def unit-test (intersection model-right unit-test-space))
+; (spit "things/thumb-cluster-unit-test.scad" 
+;       (write-scad unit-test))
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
