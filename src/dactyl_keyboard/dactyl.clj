@@ -1,6 +1,5 @@
 ; TODO countersink screw holes
 ; TODO Palm rest outline
-; TODO Expand walls so they don't interfere with switches
 
 (ns dactyl-keyboard.dactyl
     (:refer-clojure :exclude [use import])
@@ -60,8 +59,8 @@
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2
 (def extra-height 1.0)                  ; original= 0.5
 
-(def wall-z-offset -0.5)                 ; length of the first downward-sloping part of the wall (negative)
-(def wall-xy-offset 0)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
+(def wall-z-offset -2)                 ; length of the first downward-sloping part of the wall (negative)
+(def wall-xy-offset 0.5)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 2)                  ; wall thickness parameter; originally 5
 
 ;; Settings for column-style == :fixed
@@ -960,8 +959,8 @@
   )
 )
 (def control-switches (union
-  (make-control-switch-hole [(first (key-position 2 0 [1.75 0 0])) (second (key-position 2 0 [0 0 0])) 8.75])
-  (make-control-switch-hole [(first (key-position 3 0 [1.75 0 0])) (second (key-position 3 0 [0 0 0])) 8.75])
+  (make-control-switch-hole [(first (key-position 2 0 [1.75 0 0])) (second (key-position 2 0 [0 2 0])) 8.75])
+  (make-control-switch-hole [(first (key-position 3 0 [1.75 0 0])) (second (key-position 3 0 [0 2 0])) 8.75])
 ))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -1105,7 +1104,7 @@
   (+ (second nicenano-reference-key-position) (+ (/ mount-height 2) post-adj))
   0
 ])
-(def nicenano-holder (make-nicenano-holder (map + nice-nano-reference-position [(- 2) -3 0]) 180))
+(def nicenano-holder (make-nicenano-holder (map + nice-nano-reference-position [(- 2) -1.7375 0]) 180))
 
 ;;;;;;;;;;;;;;;;;;;
 ;; Complete Case ;;
