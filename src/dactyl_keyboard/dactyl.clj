@@ -1,6 +1,5 @@
 ; TODO countersink screw holes
 ; TODO Palm rest outline
-; TODO Drop the control switch holes down slightly
 ; TODO Expand walls so they don't interfere with switches
 
 (ns dactyl-keyboard.dactyl
@@ -961,8 +960,8 @@
   )
 )
 (def control-switches (union
-  (make-control-switch-hole [(first (key-position 2 0 [1.75 0 0])) (second (key-position 2 0 [0 0 0])) 11])
-  (make-control-switch-hole [(first (key-position 3 0 [1.75 0 0])) (second (key-position 3 0 [0 0 0])) 11])
+  (make-control-switch-hole [(first (key-position 2 0 [1.75 0 0])) (second (key-position 2 0 [0 0 0])) 8.75])
+  (make-control-switch-hole [(first (key-position 3 0 [1.75 0 0])) (second (key-position 3 0 [0 0 0])) 8.75])
 ))
 
 ;;;;;;;;;;;;;;;;;;;;
