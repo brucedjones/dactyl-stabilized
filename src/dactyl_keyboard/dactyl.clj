@@ -1,5 +1,7 @@
 ; TODO countersink screw holes
 ; TODO Palm rest outline
+; TODO Drop the control switch holes down slightly
+; TODO Expand walls so they don't interfere with switches
 
 (ns dactyl-keyboard.dactyl
     (:refer-clojure :exclude [use import])
@@ -103,8 +105,10 @@
 (def mount-width (+ keyswitch-width 3.2))
 (def mount-height (+ keyswitch-height 2.7))
 
-(def plate-1u
-  (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 (+ plate-thickness 0.5))
+(defn make-plate-1u [height-offset]
+  (let [
+        keyswitch-height (+ keyswitch-height height-offset)
+        top-wall (->> (cube (+ keyswitch-width 3) 1.5 (+ plate-thickness 0.5))
                       (translate [0
                                   (+ (/ 1.5 2) (/ keyswitch-height 2))
                                   (- (/ plate-thickness 2) 0.25)]))
@@ -135,6 +139,8 @@
      (->>
       top-nub-pair
       (rotate (/ π 2) [0 0 1])))))
+
+(def plate-1u (make-plate-1u 0))
 
 ;;;;;;;;;;;;;;;;
 ;; SA Keycaps ;;
@@ -486,13 +492,24 @@
   )
 )
 
-(def larger-plate
-  (let [plate-height (/ (- sa-double-length mount-height) 2)
-        top-plate (->> (cube mount-width plate-height web-thickness)
+(def plate-2u-keyswitch-height-offset (- 0.2))
+(def plate-2u
+  (let [
+        keyswitch-height-offset (- 0.2)
+        plate-height (/ (- sa-double-length mount-height) 2)
+        plate-width mount-width
+        top-plate (->> (cube plate-width plate-height web-thickness)
                        (translate [0 (/ (+ plate-height mount-height) 2)
                                    (- plate-thickness (/ web-thickness 2))]))
+        side-plate-width (/ (- plate-width (+ keyswitch-height 3 plate-2u-keyswitch-height-offset)) 2)
+        side-plate-height mount-height
+        side-plate (->> (cube side-plate-width side-plate-height web-thickness)
+                       (translate [(-(/ plate-width 2) (/ side-plate-width 2)) 0
+                                   (- plate-thickness (/ web-thickness 2))]))
         ]
-    (union top-plate (mirror [0 1 0] top-plate))))
+    (union (rotate (/ π 2) [0 0 1] (make-plate-1u plate-2u-keyswitch-height-offset)) top-plate (mirror [0 1 0] top-plate side-plate (mirror [1 0 0] side-plate)))
+  )
+)
 
 ; Cherry MX 2u stabilizer cutout
 ; Reference: https://cdn.sparkfun.com/datasheets/Components/Switches/MX%20Series.pdf
@@ -548,8 +565,8 @@
       )
 
       main-retention-tab-width (- A main-stab-cutout-width)
-      main-retention-tab-depth (/ (- mount-width keyswitch-height) 2)
-      main-retention-tab-y (-(/ (+ keyswitch-height main-retention-tab-depth) 2))
+      main-retention-tab-depth (/ (- mount-width (+ keyswitch-height plate-2u-keyswitch-height-offset)) 2)
+      main-retention-tab-y (-(/ (+ (+ keyswitch-height plate-2u-keyswitch-height-offset) main-retention-tab-depth) 2))
       main-retention-tab-x 0
       main-retention-tab-thickness retention-tab-hole-thickness
       main-retention-tab (->>
@@ -580,24 +597,6 @@
   )
 )
 (def stabilizer-cutout-2u (small-stabilizer (inches-to-mm 0.94)))
-
-
-(def plate-2u
-  (let [
-        plate-height (/ (- sa-double-length mount-height) 2)
-        plate-width mount-width
-        top-plate (->> (cube plate-width plate-height web-thickness)
-                       (translate [0 (/ (+ plate-height mount-height) 2)
-                                   (- plate-thickness (/ web-thickness 2))]))
-        side-plate-width (/ (- plate-width (+ keyswitch-width 3)) 2)
-        side-plate-height mount-height
-        side-plate (->> (cube side-plate-width side-plate-height web-thickness)
-                       (translate [(-(/ plate-width 2) (/ side-plate-width 2)) 0
-                                   (- plate-thickness (/ web-thickness 2))]))
-        ]
-    (union (rotate (/ π 2) [0 0 1] plate-1u) top-plate (mirror [0 1 0] top-plate side-plate (mirror [1 0 0] side-plate)))
-  )
-)
 
 (def thumbcaps
   (union
@@ -1242,22 +1241,22 @@
 ;;;;;;;;;;;;;;;;
 
 ; Cherry stabilizer
-; (def test-plate (let [plate-height sa-double-length]
-;   (->> (cube mount-width plate-height web-thickness)
-;                        (translate [0 0
-;                                    (- plate-thickness (/ web-thickness 2))]))))
-; (def stabilizer-unit-test
-;   (difference 
-;     (union
-;       plate-2u
-;       (translate [mount-width 0 0] test-plate)
-;       (translate [(- mount-width) 0 0] test-plate)
-;     )
-;     stabilizer-cutout-2u
-;   )
-; )
-; (spit "things/stabilizer-unit-test.scad"
-;       (write-scad stabilizer-unit-test))
+(def test-plate (let [plate-height sa-double-length]
+  (->> (cube mount-width plate-height web-thickness)
+                       (translate [0 0
+                                   (- plate-thickness (/ web-thickness 2))]))))
+(def stabilizer-unit-test
+  (difference 
+    (union
+      plate-2u
+      (translate [mount-width 0 0] test-plate)
+      (translate [(- mount-width) 0 0] test-plate)
+    )
+    stabilizer-cutout-2u
+  )
+)
+(spit "things/stabilizer-unit-test.scad"
+      (write-scad stabilizer-unit-test))
 
 ; Nicenano holder unit test
 ; (def nicenano-holder-test
