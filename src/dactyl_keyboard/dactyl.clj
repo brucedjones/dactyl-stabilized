@@ -1,6 +1,3 @@
-; TODO countersink screw holes
-; TODO Palm rest outline
-
 (ns dactyl-keyboard.dactyl
     (:refer-clojure :exclude [use import])
     (:require [clojure.core.matrix :refer [array matrix mmul]]
@@ -1151,7 +1148,7 @@
 ; these positions should really be derived from the model
 (def outside-case-contact [61.5737 -51.3762])
 (def thumb-case-contact [-51.5458 -103.431])
-(def internal-corner [-51.5458, -51.3762,])
+(def internal-corner [-51.5458, -46.3762])
 (def rest-length 63.5)
 (def lower-right-one (map + outside-case-contact [0 (* -1 rest-length)]))
 (def lower-right-two (map + lower-right-one [(* 25.4 (* -1 (√ 0.1))) (* 25.4 (* -2 (√ 0.1)))]))
@@ -1169,32 +1166,36 @@
         lower-left-two
         lower-right-two
         lower-right-one
-        outside-case-contact
+        (map + outside-case-contact [4.0963, 9.8962])
         internal-corner
-        thumb-case-contact
+        (map + thumb-case-contact [-30.8642, 14.441])
       ])
-    )
-    (->>
-      (->> (binding [*fn* 30] (cylinder 1.7 20)))
-      (translate palm-screw-one)
-    )
-    (->>
-      (->> (binding [*fn* 30] (cylinder 1.7 20)))
-      (translate palm-screw-two)
-    )
-    (->>
-      (->> (binding [*fn* 30] (cylinder 1.7 20)))
-      (translate palm-screw-three)
     )
   )
 )
 
+(def plate-screw-holes (union
+  (screw-insert-all-shapes 3.25 1.8 3)
+  (->>
+    (->> (binding [*fn* 30] (cylinder [3.25 1.8] 3 :center false)))
+    (translate palm-screw-one)
+  )
+  (->>
+    (->> (binding [*fn* 30] (cylinder [3.25 1.8] 3 :center false)))
+    (translate palm-screw-two)
+  )
+  (->>
+    (->> (binding [*fn* 30] (cylinder [3.25 1.8] 3 :center false)))
+    (translate palm-screw-three)
+  )
+))
+
 (def plate-right
   (union
-    (extrude-linear
-      {:height 2.6 :center false}
-      (project
-        (difference
+    (difference
+      (extrude-linear
+        {:height 2.6 :center false}
+        (project
           (union
             key-holes
             key-holes-inner
@@ -1210,7 +1211,9 @@
             screw-insert-outers
             palm-rest
           )
-          (translate [0 0 -10] screw-insert-screw-holes)))
+        )
+      )
+      plate-screw-holes
     )
     (translate [0 0 2.6] (nth nicenano-holder 0))
   )
@@ -1255,6 +1258,13 @@
 )
 (spit "things/stabilizer-unit-test.scad"
       (write-scad stabilizer-unit-test))
+
+; Countersink
+(spit "things/countersink-unit-test.scad"
+  (write-scad 
+    (intersection plate-right (translate palm-screw-two (cube 12, 12, 12)))
+  )
+)
 
 ; Nicenano holder unit test
 ; (def nicenano-holder-test
