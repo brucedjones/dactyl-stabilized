@@ -1242,52 +1242,49 @@
         (plate-screw-holes plate-thickness)
     )
       (translate [0 0 plate-thickness] (nth nicenano-holder 0))
+    )
   )
-)
 )
 
 (spit "things/right-plate.scad"
       (write-scad plate-right))
 
-; (spit "things/left-plate.scad"
-;       (write-scad (mirror [-1 0 0] plate-right)))
+(spit "things/left-plate.scad"
+      (write-scad (mirror [-1 0 0] plate-right)))
 
-; (spit "things/right-plate-laser.scad"
-;       (write-scad
-;        (cut
-;         (translate [0 0 -0.1]
-;                    (difference (union case-walls
-;                                       screw-insert-outers)
-;                                (translate [0 0 -10] screw-insert-screw-holes))))))
+; Complete model - useful for testing
+; (spit "things/complete.scad"
+;       (write-scad (union model-right plate-right)))
+
 
 ;;;;;;;;;;;;;;;;
 ;; Unit Tests ;;
 ;;;;;;;;;;;;;;;;
 
-; Cherry stabilizer
-(def test-plate (let [plate-height sa-double-length]
-  (->> (cube mount-width plate-height web-thickness)
-                       (translate [0 0
-                                   (- plate-thickness (/ web-thickness 2))]))))
-(def stabilizer-unit-test
-  (difference 
-    (union
-      plate-2u
-      (translate [mount-width 0 0] test-plate)
-      (translate [(- mount-width) 0 0] test-plate)
-    )
-    stabilizer-cutout-2u
-  )
-)
-(spit "things/stabilizer-unit-test.scad"
-      (write-scad stabilizer-unit-test))
+; Cherry stabilizer unit test
+; (def test-plate (let [plate-height sa-double-length]
+;   (->> (cube mount-width plate-height web-thickness)
+;                        (translate [0 0
+;                                    (- plate-thickness (/ web-thickness 2))]))))
+; (def stabilizer-unit-test
+;   (difference 
+;     (union
+;       plate-2u
+;       (translate [mount-width 0 0] test-plate)
+;       (translate [(- mount-width) 0 0] test-plate)
+;     )
+;     stabilizer-cutout-2u
+;   )
+; )
+; (spit "things/stabilizer-unit-test.scad"
+;       (write-scad stabilizer-unit-test))
 
-; Countersink
-(spit "things/countersink-unit-test.scad"
-  (write-scad 
-    (intersection plate-right (translate palm-screw-two (cube 12, 12, 12)))
-  )
-)
+; Countersink unit test
+; (spit "things/countersink-unit-test.scad"
+;   (write-scad 
+;     (intersection plate-right (translate palm-screw-two (cube 12, 12, 12)))
+;   )
+; )
 
 ; Nicenano holder unit test
 ; (def nicenano-holder-test
@@ -1318,14 +1315,14 @@
 ; )
 
 ; Nicenano holder integration test
-(def unit-test-position [-78 60 0])
-(def unit-test-cube   (cube 150 120 40))
-(def unit-test-space  (translate unit-test-position unit-test-cube))
+; (def unit-test-position [-78 60 0])
+; (def unit-test-cube   (cube 150 120 40))
+; (def unit-test-space  (translate unit-test-position unit-test-cube))
 
-(spit "things/nicenano-integration-test-plate.scad" 
-      (write-scad (intersection (translate [0 0 (- 2.6)] plate-right) unit-test-space)))
-(spit "things/nicenano-integration-test-wall.scad" 
-      (write-scad (intersection model-right unit-test-space)))
+; (spit "things/nicenano-integration-test-plate.scad" 
+;       (write-scad (intersection (translate [0 0 (- 2.6)] plate-right) unit-test-space)))
+; (spit "things/nicenano-integration-test-wall.scad" 
+;       (write-scad (intersection model-right unit-test-space)))
 
 
 ; Thumb cluster unit test
