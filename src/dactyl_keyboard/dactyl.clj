@@ -1174,27 +1174,53 @@
   )
 )
 
-(def plate-screw-holes (union
-  (screw-insert-all-shapes 3.25 1.8 3)
+(defn plate-screw-holes [plate-thickness]
+  (let [
+          screw-head-diameter 5.7
+          screw-head-radius (/ screw-head-diameter 2.0)
+          screw-head-base-diameter 3.2
+          screw-head-base-radius (/ screw-head-base-diameter 2.0)
+          screw-head-height 2.3
+    ]
+    (union
+      (screw-insert-all-shapes screw-head-radius screw-head-base-radius screw-head-height)
+      (screw-insert-all-shapes screw-head-base-radius screw-head-base-radius plate-thickness)
   (->>
-    (->> (binding [*fn* 30] (cylinder [3.25 1.8] 3 :center false)))
+        (->> (binding [*fn* 30] (cylinder [screw-head-base-radius screw-head-base-radius] 10 :center false)))
     (translate palm-screw-one)
   )
   (->>
-    (->> (binding [*fn* 30] (cylinder [3.25 1.8] 3 :center false)))
+        (->> (binding [*fn* 30] (cylinder [screw-head-radius screw-head-base-radius] screw-head-height :center false))) 
+        (translate palm-screw-one)
+      )
+      (->>
+        (->> (binding [*fn* 30] (cylinder [screw-head-base-radius screw-head-base-radius] 10 :center false)))
     (translate palm-screw-two)
   )
   (->>
-    (->> (binding [*fn* 30] (cylinder [3.25 1.8] 3 :center false)))
+        (->> (binding [*fn* 30] (cylinder [screw-head-radius screw-head-base-radius] screw-head-height :center false)))
+        (translate palm-screw-two)
+      )
+      (->>
+        (->> (binding [*fn* 30] (cylinder [screw-head-radius screw-head-base-radius] screw-head-height :center false)))
     (translate palm-screw-three)
   )
-))
+      (->>
+        (->> (binding [*fn* 30] (cylinder [screw-head-base-radius screw-head-base-radius] 10 :center false)))
+        (translate palm-screw-three)
+      )
+    )
+  )
+)
 
 (def plate-right
+  (let [
+      plate-thickness 2.6
+    ]
   (union
     (difference
       (extrude-linear
-        {:height 2.6 :center false}
+          {:height plate-thickness :center false}
         (project
           (union
             key-holes
@@ -1213,15 +1239,12 @@
           )
         )
       )
-      plate-screw-holes
+        (plate-screw-holes plate-thickness)
     )
-    (translate [0 0 2.6] (nth nicenano-holder 0))
+      (translate [0 0 plate-thickness] (nth nicenano-holder 0))
   )
 )
-
-(spit "things/complete.scad"
-      (write-scad (union model-right plate-right)))
-
+)
 
 (spit "things/right-plate.scad"
       (write-scad plate-right))
