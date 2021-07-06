@@ -60,6 +60,8 @@
 (def wall-xy-offset 0.5)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 2)                  ; wall thickness parameter; originally 5
 
+(def add-palm-rest false)                ; Extends the base plate to accomodate a palm rest
+
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
 ;; http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
@@ -1139,8 +1141,8 @@
 (spit "things/right.scad"
       (write-scad model-right))
 
-; (spit "things/left.scad"
-;       (write-scad (mirror [-1 0 0] model-right)))
+(spit "things/left.scad"
+      (write-scad (mirror [-1 0 0] model-right)))
 
 ;;;;;;;;;;;;;;;
 ;; Palm Rest ;;
@@ -1235,7 +1237,7 @@
             thumbcaps-fill-type
             caps-fill
             screw-insert-outers
-            palm-rest
+            (if add-palm-rest palm-rest)
           )
         )
       )
