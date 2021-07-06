@@ -33,31 +33,33 @@ This is a fork of the [Dactyl-ManuForm](https://github.com/tshort/dactyl-keyboar
 
 - Key switches
 - Keycaps
-- TRRS Cable
-- 2x [Arduino Pro Micro](https://www.digikey.com/en/products/detail/DEV-12640/1568-1060-ND/5140825)
-- 2x [USB-C Breakout Board](https://www.digikey.com/en/products/detail/BOB-15100/1568-1958-ND/9770720)
+- 2x [nice!nano](https://nicekeyboards.com/nice-nano/)
 - [Heat set inserts](https://www.digikey.com/en/products/detail/4255/1528-4255-ND/10244656)
-- [E-Z LOK Threaded inserts](https://www.amazon.com/gp/product/B015CAPTZI) - for mounting the wooden wrist rest
 - [TRRS Jacks](https://www.amazon.com/gp/product/B07KY7CJCJ)
 - [M3x8mm machine screws](https://www.amazon.com/gp/product/B018RSV2AI)
 - [Header pins](https://www.amazon.com/gp/product/B074HVBTZ4)
-- [4.7 Ohm Resistors](https://www.amazon.com/gp/product/B0185FIIVE)
 - [24 AWG hookup wire](https://www.digikey.com/en/products/detail/24UL1007SLDKIT/2328-24UL1007SLDKIT-ND/11614213)
 - [IN4148 Diodes](https://www.digikey.com/en/products/detail/1N4148-TAP/1N4148-TAPCT-ND/3104296)
-- [Silicone Jumper Wires](https://www.digikey.com/en/products/detail/4447/1528-4447-ND/11503291)
-- 2x [Reset switches](https://www.digikey.com/en/products/detail/PS1024ARED/EG2015-ND/44577)
-- 2x [USB Cable](https://www.digikey.com/en/products/detail/SC-2AMK003F/380-1431-ND/8544577)
+- [Jumper Wires](https://www.adafruit.com/product/1949)
+- 2x [Reset switches](https://www.amazon.com/gp/product/B07F9PLSRY/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1)
+- 2x [Power switches](https://www.amazon.com/gp/product/B07F9K3F82/ref=ppx_yo_dt_b_asin_title_o04_s00?ie=UTF8&psc=1)
+- [JST-PH 2.0 Female Connectors](https://www.amazon.com/gp/product/B07NWNPB77/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1)
+- [JST-PH 2.0 Male Connectors](https://www.amazon.com/BDHI-Electrical-Connector-Silicone-B184-20/dp/B096D8SCP6/ref=sr_1_11?)
+- OPTIONAL: [E-Z LOK Threaded inserts](https://www.amazon.com/gp/product/B015CAPTZI) - for mounting the wooden palm rest
+- OPTIONAL: Wood stock - for making the wooden
 
 Also not technically part of the BOM, but these Irwin wire strippers are the bomb: https://www.amazon.com/gp/product/B000OQ21CA
 
-## Assembly notes
+## Build notes
 
-- None of the screw holes are countersunk but I used countersink screws since they are easier to come by than wafer headed screws. In order to make the countersink you can apply the same methodology you would to install heat set insets. That is, use a soldering iron to heat the screw while it is in the hole, applying pressure as you do. The screw will melt the surrounding plastic and form a nice countersink. For best results do this in two passes, clearing the plastic melt with a sharp knife between passes.
+- Use my [ZMK config](https://github.com/brucedjones/zmk-config). You may need to adjust the pins used for rows/columns on the nicenano. In my config I use D5-9 for rows and A0-2, D10, D16, D14, D15 for the columns.
 - [This build log](https://www.beekeeb.com/dactyl-manuform-mini-mechanical-keyboard-build-log/) linked in the original Dactyl Manuform Mini repo is super helpful
+- The palm rest is optional, some notes on how to make one are found in [this imgur](https://imgur.com/gallery/1zfyPCG) album from my first dactyl build
+- To extend the base plate to accomodate a palm rest, set `add-palm-rest` to `true` in the clojure code.
 
 ## License
 
-Copyright © 2015-2020 Matthew Adereth, Tom Short, Leo Lou and Bruce Jones
+Copyright © 2015-2021 Matthew Adereth, Tom Short, Leo Lou and Bruce Jones
 
 The source code for generating the models is distributed under the [GNU AFFERO GENERAL PUBLIC LICENSE Version 3](LICENSE).
 
