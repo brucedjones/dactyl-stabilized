@@ -14,12 +14,11 @@ This is a fork of the [Dactyl-ManuForm](https://github.com/tshort/dactyl-keyboar
 - One key in the thumb cluster has been removed. Other thumb keys are also adjusted.
 - The total height is reduced and wire posts are removed. This results in a
   higher printing speed and a lower cost.
-- A TRRS mount instead of a RJ9 mount is used.
-- A USB-C breakout board mount is used.
 - Screw posts are moved inside. The holes are designed for TRISERT® thread inserts 145m3.
-- The pro micro holder has been modified. Dupont cables can be used.
 - The base plate has been modified to accommodate a custom made palm rest
-- Hole for reset switch
+- Holes for reset and power switches.
+- Base plate includes nicenano holder and retention tabs. It should hold the nicenano without any need for hot glue.
+- Thumb cluster has been completely reworked to include stabilizers for the 2u switches, and a layout that is more comfortable (for me).
 
 ## Generate OpenSCAD and STL models
 
@@ -45,6 +44,8 @@ This is a fork of the [Dactyl-ManuForm](https://github.com/tshort/dactyl-keyboar
 - 2x [Power switches](https://www.amazon.com/gp/product/B07F9K3F82/ref=ppx_yo_dt_b_asin_title_o04_s00?ie=UTF8&psc=1)
 - [JST-PH 2.0 Female Connectors](https://www.amazon.com/gp/product/B07NWNPB77/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1)
 - [JST-PH 2.0 Male Connectors](https://www.amazon.com/BDHI-Electrical-Connector-Silicone-B184-20/dp/B096D8SCP6/ref=sr_1_11?)
+- 2x [2000mAh battery](https://www.adafruit.com/product/2011?gclid=Cj0KCQjw24qHBhCnARIsAPbdtlLyIz9S8vBL4pCs6ABQVzd6cbMSSxXIwCSSCJmDJpHVJcIGRTOgobsaAtevEALw_wcB)
+- [Command poster strips](https://www.amazon.com/Command-Damage-Free-Poster-posters-Packaging/dp/B0751VFF2X/ref=sr_1_1_sspa)
 - OPTIONAL: [E-Z LOK Threaded inserts](https://www.amazon.com/gp/product/B015CAPTZI) - for mounting the wooden palm rest
 - OPTIONAL: Wood stock - for making the wooden
 
@@ -56,6 +57,8 @@ Also not technically part of the BOM, but these Irwin wire strippers are the bom
 - [This build log](https://www.beekeeb.com/dactyl-manuform-mini-mechanical-keyboard-build-log/) linked in the original Dactyl Manuform Mini repo is super helpful
 - The palm rest is optional, some notes on how to make one are found in [this imgur](https://imgur.com/gallery/1zfyPCG) album from my first dactyl build
 - To extend the base plate to accomodate a palm rest, set `add-palm-rest` to `true` in the clojure code.
+- Batteries are "secured" to the base plate with command poster strips.
+- Dimensions work fine on my printer, you may need to tune for your printer. See the end of the clojure code for a bunch of "unit tests" - isolated sections of the geometry that are useful to print as one-offs to test fit.
 
 ## License
 
